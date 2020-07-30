@@ -28,24 +28,19 @@ model_path='vgg19.h5'
 model=load_model(model_path)
 
 model._make_predict_function()   #Necessary
-#_make_predict_function() for imagenet any type of model u are using use this function
+#_make_predict_function() for imagenet
 
 
-#inbulit function and it is responsible for creating images into array
 
 #preprocessing function
 def model_predict(img_path, model):
     img = image.load_img(img_path, target_size=(224, 224)) 
-#target_size=(224, 224) coz when implementing transfer learning technique then by default images size is 244,244 
-#with other size it will not work and will give u a lot of error
 
     # Preprocessing the image
     x = image.img_to_array(img)
     # x = np.true_divide(x, 255)
-    x = np.expand_dims(x, axis=0)  #expanding the dimension so it can be given as an input to ur model 
-
-    # Be careful how your trained model deals with the input
-    # otherwise, it won't make correct prediction!
+    x = np.expand_dims(x, axis=0)   
+    
     x = preprocess_input(x)
 
     preds = model.predict(x)
@@ -54,15 +49,14 @@ def model_predict(img_path, model):
 
 @app.route('/', methods=['GET'])
 def index():
-    # Main page
     return render_template('index.html')
-#render template is imp coz it is responsible for showing ur first starting page of html 
+ 
     
 
 @app.route('/predict/', methods=['GET', 'POST'])
 def upload():
-    if request.method == 'POST':         #user trying to post the img
-        # Get the file from post request
+    if request.method == 'POST':         
+        
         f = request.files['file']
 
         # Save the file to ./uploads
@@ -72,12 +66,12 @@ def upload():
         f.save(file_path)
 
         # Make prediction
-        preds = model_predict(file_path, model)    # model_predict will give u the class index
+        preds = model_predict(file_path, model)    
 
-        # Process your result for human
+      
         # pred_class = preds.argmax(axis=-1)            # Simple argmax
         pred_class = decode_predictions(preds, top=1)   # ImageNet Decode
-        #decode_predictions will help u to map the 1000 classes index to the class label 
+      
         result = str(pred_class[0][0][1])               # Convert to string
         return result
     return None
